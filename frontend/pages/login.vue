@@ -54,7 +54,11 @@ const login = async () => {
     // Vérifier les informations de l'utilisateur
     const user = await getUserInfo();
 
+    const userState = useState('user'); // Utilisation de la state globale
+    userState.value = user;
     if (user.roles.includes('ROLE_SUPER_ADMIN')) {
+      // getUserInfo in local storage
+      localStorage.setItem('user', JSON.stringify(user));
       await router.push('/admin');
     } else {
       await router.push('/');

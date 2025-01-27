@@ -9,9 +9,9 @@ const logout = () => {
 
 <template>
   <div class="admin-layout">
-    <header>Header default
+    <app-header>Header default
       <button @click="logout" class="bg-red-500 px-4 py-2 rounded-md hover:bg-red-600">Déconnexion</button>
-    </header>
+    </app-header>
     <main>
       <slot />
     </main>

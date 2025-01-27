@@ -3,8 +3,8 @@
 
 <template>
   <div class="admin-layout">
-    <header>Header Login
-    </header>
+    <app-header>Header Login
+    </app-header>
     <main>
       <slot />
     </main>

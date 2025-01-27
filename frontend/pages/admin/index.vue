@@ -1,6 +1,7 @@
 <script setup>
 definePageMeta({
   middleware: 'auth-admin', // Utilise le middleware pour vérifier le rôle
+  layout: 'admin',
 });
 </script>
 
