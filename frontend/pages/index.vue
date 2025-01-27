@@ -9,6 +9,9 @@
 useHead({
   title: 'Homepage',
 })
+definePageMeta({
+  middleware: 'auth',
+});
 </script>
 
 

@@ -1,6 +1,7 @@
 <script setup>
 definePageMeta({
   layout: 'admin',
+  middleware: 'auth-admin',
 })
 useHead({
   title: 'Admin - Dashboard',
