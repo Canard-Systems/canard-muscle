@@ -1,9 +1,14 @@
 <script setup>
-
+definePageMeta({
+  layout: 'admin',
+})
+useHead({
+  title: 'Admin - Dashboard',
+})
 </script>
 
 <template>
-<h1>Hello</h1>
+<h1 class="text-4xl">Hello</h1>
 </template>
 
 <style scoped>
