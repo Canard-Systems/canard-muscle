@@ -8,6 +8,6 @@ definePageMeta({
 <template>
   <div>
     <h1>Tableau de bord Admin</h1>
-    <p>Bienvenue, Super Admin !</p>
+    <nuxt-link to="/admin/dashboard">DASHBOARD</nuxt-link>
   </div>
 </template>
