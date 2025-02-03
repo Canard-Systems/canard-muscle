@@ -7,10 +7,15 @@ const router = useRouter();
 const tokenCookie = useCookie('token');
 const user = useState('user'); // Récupère les informations utilisateur
 
+const isAuth = computed(() => user.value !== null); // Vérifie si l'utilisateur est connecté
 const logout = () => {
   tokenCookie.value = null; // Supprime le token
   user.value = null; // Supprime les infos utilisateur
   router.push('/login'); // Redirige vers la page de connexion
+};
+
+const signup = () => {
+  router.push('/signup');
 };
 </script>
 
@@ -26,7 +31,8 @@ const logout = () => {
         </li>
       </ul>
     </nav>
-    <button @click="logout" class="bg-red-500 px-4 py-2 rounded-md hover:bg-red-600">Déconnexion</button>
+    <button v-if="isAuth" @click="logout" class="bg-red-500 px-4 py-2 rounded-md hover:bg-red-600">Déconnexion</button>
+    <button v-else @click="signup">S'inscrire</button>
   </header>
 </template>
 

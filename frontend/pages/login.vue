@@ -11,9 +11,13 @@
           <label for="password" class="block text-sm font-medium text-gray-700">Mot de passe</label>
           <input type="password" v-model="password" id="password" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
         </div>
-        <button type="submit" class="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none">Connexion</button>
+        <LoadingButton :isLoading="isLoading" type="submit">Connexion</LoadingButton>
       </form>
       <p v-if="error" class="mt-4 text-red-600">{{ error }}</p>
+      <p class="mt-4 text-center text-gray-600">
+        Vous êtes nouveau ?
+        <nuxt-link to="/signup" class="text-indigo-600 hover:underline">Inscrivez-vous</nuxt-link>
+      </p>
     </div>
   </div>
 </template>
@@ -37,9 +41,11 @@ const tokenCookie = useCookie('token');
 const email = ref('');
 const password = ref('');
 const error = ref('');
+const isLoading = ref(false);
 
 const login = async () => {
   try {
+    isLoading.value = true;
     const { token } = await $fetch('http://localhost:8000/api/login_check', {
       method: 'POST',
       body: {
@@ -66,6 +72,9 @@ const login = async () => {
   } catch (err) {
     error.value = 'Identifiants incorrects. Vérifiez votre email et mot de passe.';
     console.error(err);
+  } finally
+  {
+    isLoading.value = false;
   }
 };
 
