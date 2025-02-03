@@ -10,13 +10,14 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@nuxtjs/axios": "^5.13.6",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.16",
     "nuxt": "^3.15.3",
-    "vue": "latest",
+    "sass": "^1.83.4",
+    "sass-loader": "^16.0.4",
+    "vue": "3.5.13",
     "vue-composable": "^1.0.0-beta.24",
-    "vue-router": "latest"
+    "vue-router": "4.5.0"
   },
   "devDependencies": {
     "@nuxtjs/tailwindcss": "^6.13.1"
