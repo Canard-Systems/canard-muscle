@@ -21,9 +21,6 @@
 
         <LoadingButton :isLoading="isLoading" type="submit">Créer l'exercice</LoadingButton>
       </form>
-
-      <p v-if="successMessage" class="mt-4 text-green-600">{{ successMessage }}</p>
-      <p v-if="errorMessage" class="mt-4 text-red-600">{{ errorMessage }}</p>
     </div>
 
     <div class="ml-6 bg-white p-6 rounded-lg shadow-lg w-1/2">
@@ -49,7 +46,7 @@
             <p class="text-xs text-gray-500 mt-1">Muscles : {{ capitalizeFirstLetter(exercise.muscles) || "Non précisé" }}</p>
           </div>
 
-          <button v-if="exercise.createdBy === `/api/users/${userId}`" @click="confirmDelete(exercise.id)" class="text-red-600 hover:text-red-800">🗑️</button>
+          <button v-if="exercise.createdBy === `/api/users/${$user.id}`" @click="confirmDelete(exercise.id)" class="text-red-600 hover:text-red-800">🗑️</button>
         </li>
       </ul>
       <p v-else class="text-gray-500 text-center mt-4">Aucun exercice trouvé.</p>
@@ -59,12 +56,14 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { useCookie } from "#app";
+import { useCookie, useNuxtApp } from "#app";
+import { availableMuscles } from "@/utils/muscle-fr.js";
 
-useHead({ title: 'Créer un exercice' });
+useHead({ title: 'Gestion des exercices' });
 
 definePageMeta({ middleware: 'auth' });
 
+const { $toast, $user } = useNuxtApp();
 const tokenCookie = useCookie('token');
 
 const name = ref('');
@@ -72,11 +71,8 @@ const description = ref('');
 const muscles = ref('');
 const isLoading = ref(false);
 const isFetching = ref(true);
-const successMessage = ref('');
-const errorMessage = ref('');
 const filterByUser = ref(false);
 const searchQuery = ref('');
-const userId = ref(null);
 const exercises = ref([]);
 
 const fetchExercises = async () => {
@@ -92,7 +88,6 @@ const fetchExercises = async () => {
       description: ex.description ? capitalizeFirstLetter(ex.description) : '',
       muscles: ex.muscles ? capitalizeFirstLetter(ex.muscles) : ''
     }));
-
   } catch (error) {
     console.error("Erreur lors de la récupération des exercices :", error);
   } finally {
@@ -100,37 +95,13 @@ const fetchExercises = async () => {
   }
 };
 
-const fetchUserId = async () => {
-  try {
-    const userResponse = await $fetch('http://localhost:8000/api/me', {
-      headers: { Authorization: `Bearer ${tokenCookie.value}` },
-    });
-    userId.value = userResponse.id;
-  } catch (error) {
-    console.error("Erreur lors de la récupération de l'utilisateur :", error);
-  }
-};
-
-const filteredExercises = computed(() => {
-  let filtered = exercises.value;
-  if (filterByUser.value && userId.value) {
-    filtered = filtered.filter(ex => ex.createdBy === `/api/users/${userId.value}`);
-  }
-  if (searchQuery.value) {
-    const search = searchQuery.value.toLowerCase();
-    filtered = filtered.filter(ex =>
-        ex.name.toLowerCase().includes(search) ||
-        (ex.muscles && ex.muscles.toLowerCase().includes(search))
-    );
-  }
-  return filtered;
-});
-
 const createExercise = async () => {
-  isLoading.value = true;
-  successMessage.value = '';
-  errorMessage.value = '';
+  if (!availableMuscles.value.includes(muscles.value)) {
+    $toast.error("Le muscle sélectionné n'est pas valide.");
+    return;
+  }
 
+  isLoading.value = true;
   try {
     await $fetch('http://localhost:8000/api/exercises', {
       method: 'POST',
@@ -145,14 +116,14 @@ const createExercise = async () => {
       }
     });
 
-    successMessage.value = "L'exercice a été créé avec succès !";
+    $toast.success("Exercice créé avec succès !");
     name.value = '';
     description.value = '';
     muscles.value = '';
 
     await fetchExercises();
   } catch (error) {
-    errorMessage.value = "Erreur lors de la création de l'exercice.";
+    $toast.error("Erreur lors de la création de l'exercice.");
     console.error(error);
   } finally {
     isLoading.value = false;
@@ -173,10 +144,27 @@ const deleteExercise = async (exerciseId) => {
     });
 
     exercises.value = exercises.value.filter(ex => ex.id !== exerciseId);
+    $toast.success("Exercice supprimé !");
   } catch (error) {
-    console.error("Erreur lors de la suppression de l'exercice :", error);
+    $toast.error("Erreur lors de la suppression de l'exercice.");
+    console.error(error);
   }
 };
+
+const filteredExercises = computed(() => {
+  let filtered = exercises.value;
+  if (filterByUser.value && $user?.value?.id) {
+    filtered = filtered.filter(ex => ex.createdBy === `/api/users/${$user.value.id}`);
+  }
+  if (searchQuery.value) {
+    const search = searchQuery.value.toLowerCase();
+    filtered = filtered.filter(ex =>
+        ex.name.toLowerCase().includes(search) ||
+        (ex.muscles && ex.muscles.toLowerCase().includes(search))
+    );
+  }
+  return filtered;
+});
 
 const capitalizeFirstLetter = (str) => {
   if (!str) return '';
@@ -184,7 +172,6 @@ const capitalizeFirstLetter = (str) => {
 };
 
 onMounted(async () => {
-  await fetchUserId();
   await fetchExercises();
 });
 </script>
