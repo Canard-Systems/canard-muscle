@@ -14,11 +14,36 @@
           <textarea id="description" v-model="description" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
         </div>
 
-        <div class="mb-4">
+        <div class="mb-4 relative">
           <label for="muscles" class="block text-sm font-medium text-gray-700">Muscles ciblés</label>
-          <input type="text" id="muscles" v-model="muscles" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Ex: Pectoraux, Biceps, Quadriceps"/>
-        </div>
 
+          <div class="flex flex-wrap gap-2 mb-2">
+    <span v-for="muscle in selectedMuscles" :key="muscle" class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full text-xs flex items-center">
+      {{ muscle }}
+      <button @click="removeMuscle(muscle)" class="ml-2 text-red-600 hover:text-red-800">✖</button>
+    </span>
+          </div>
+
+          <input
+              type="text"
+              id="muscles"
+              v-model="musclesInput"
+              @input="filterMuscles"
+              @focus="showDropdown = true"
+              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              placeholder="Ajoutez un muscle"
+          />
+
+          <ul v-if="showDropdown && filteredMuscles.length" class="absolute z-10 bg-white w-full border border-gray-300 mt-1 rounded-md shadow-lg">
+            <li
+                v-for="muscle in filteredMuscles"
+                :key="muscle"
+                @click="selectMuscle(muscle)"
+                class="p-2 cursor-pointer hover:bg-gray-100">
+              {{ muscle }}
+            </li>
+          </ul>
+        </div>
         <LoadingButton :isLoading="isLoading" type="submit">Créer l'exercice</LoadingButton>
       </form>
     </div>
@@ -68,12 +93,36 @@ const tokenCookie = useCookie('token');
 
 const name = ref('');
 const description = ref('');
-const muscles = ref('');
 const isLoading = ref(false);
 const isFetching = ref(true);
 const filterByUser = ref(false);
 const searchQuery = ref('');
 const exercises = ref([]);
+const selectedMuscles = ref([]);
+const musclesInput = ref('');
+const showDropdown = ref(false);
+const filteredMuscles = ref([...availableMuscles]);
+
+const filterMuscles = () => {
+  const search = musclesInput.value.toLowerCase();
+  filteredMuscles.value = availableMuscles.filter(muscle =>
+      muscle.toLowerCase().includes(search) && !selectedMuscles.value.includes(muscle)
+  );
+  showDropdown.value = true;
+};
+
+const selectMuscle = (muscle) => {
+  if (!selectedMuscles.value.includes(muscle)) {
+    selectedMuscles.value.push(muscle);
+  }
+  musclesInput.value = '';
+  showDropdown.value = false;
+};
+
+const removeMuscle = (muscle) => {
+  selectedMuscles.value = selectedMuscles.value.filter(m => m !== muscle);
+};
+
 
 const fetchExercises = async () => {
   try {
@@ -96,8 +145,8 @@ const fetchExercises = async () => {
 };
 
 const createExercise = async () => {
-  if (!availableMuscles.value.includes(muscles.value)) {
-    $toast.error("Le muscle sélectionné n'est pas valide.");
+  if (selectedMuscles.value.length === 0) {
+    $toast.error("Vous devez sélectionner au moins un muscle.");
     return;
   }
 
@@ -112,14 +161,14 @@ const createExercise = async () => {
       body: {
         name: name.value.toLowerCase(),
         description: description.value.toLowerCase(),
-        muscles: muscles.value.toLowerCase()
+        muscles: selectedMuscles.value.map(m => m.toLowerCase()).join(', ') // Convertir en string séparée par des virgules
       }
     });
 
     $toast.success("Exercice créé avec succès !");
     name.value = '';
     description.value = '';
-    muscles.value = '';
+    selectedMuscles.value = []; // Réinitialisation après envoi
 
     await fetchExercises();
   } catch (error) {
