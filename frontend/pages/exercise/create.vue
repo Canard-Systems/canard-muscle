@@ -102,22 +102,23 @@ const name = ref('');
 const description = ref('');
 const muscles = ref('');
 const isLoading = ref(false);
-const isFetching = ref(true);
+const isFetching = ref(true); // Ajout du loader
 const successMessage = ref('');
 const errorMessage = ref('');
 const filterByUser = ref(false);
 const searchQuery = ref('');
+const userId = ref(null); // Stocke l'ID de l'utilisateur connecté
 
 const exercises = ref([]);
-const userExercises = ref([]);
 
+// 🔹 Récupère les exercices filtrés (ceux publics + créés par l'utilisateur)
 const fetchExercises = async () => {
   try {
     isFetching.value = true;
-    const response = await $fetch('http://localhost:8000/api/exercises', {
+    const response = await $fetch('http://localhost:8000/api/exercises/filtered', {
       headers: { Authorization: `Bearer ${tokenCookie.value}` },
     });
-    exercises.value = response.member || [];
+    exercises.value = response || [];
   } catch (error) {
     console.error("Erreur lors de la récupération des exercices :", error);
   } finally {
@@ -125,33 +126,40 @@ const fetchExercises = async () => {
   }
 };
 
-const fetchUserExercises = async () => {
+// 🔹 Récupère l'ID de l'utilisateur connecté
+const fetchUserId = async () => {
   try {
-    isFetching.value = true;
-    const response = await $fetch('http://localhost:8000/api/exercises/user', {
+    const userResponse = await $fetch('http://localhost:8000/api/me', {
       headers: { Authorization: `Bearer ${tokenCookie.value}` },
     });
-    userExercises.value = response || [];
+    userId.value = userResponse.id;
   } catch (error) {
-    console.error("Erreur lors de la récupération des exercices de l'utilisateur :", error);
-  } finally {
-    isFetching.value = false;
+    console.error("Erreur lors de la récupération de l'utilisateur :", error);
   }
 };
 
+// 🔹 Filtrage dynamique (nom, muscles et user)
 const filteredExercises = computed(() => {
-  const exercisesToFilter = filterByUser.value ? userExercises.value : exercises.value;
+  let filtered = exercises.value;
 
-  if (!searchQuery.value) return exercisesToFilter;
+  // Filtrage par utilisateur
+  if (filterByUser.value && userId.value) {
+    filtered = filtered.filter(ex => ex.createdBy === `/api/users/${userId.value}`);
+  }
 
-  const search = searchQuery.value.toLowerCase();
+  // Filtrage par recherche
+  if (searchQuery.value) {
+    const search = searchQuery.value.toLowerCase();
+    filtered = filtered.filter(ex =>
+        ex.name.toLowerCase().includes(search) ||
+        (ex.muscles && ex.muscles.toLowerCase().includes(search))
+    );
+  }
 
-  return exercisesToFilter.filter(exercise =>
-      exercise.name.toLowerCase().includes(search) ||
-      (exercise.muscles && exercise.muscles.toLowerCase().includes(search))
-  );
+  return filtered;
 });
 
+// 🔹 Création d'un nouvel exercice
 const createExercise = async () => {
   isLoading.value = true;
   successMessage.value = '';
@@ -177,7 +185,6 @@ const createExercise = async () => {
     muscles.value = '';
 
     await fetchExercises();
-    await fetchUserExercises();
   } catch (error) {
     errorMessage.value = "Erreur lors de la création de l'exercice.";
     console.error(error);
@@ -186,8 +193,8 @@ const createExercise = async () => {
   }
 };
 
-onMounted(() => {
-  fetchExercises();
-  fetchUserExercises();
+onMounted(async () => {
+  await fetchUserId();
+  await fetchExercises();
 });
 </script>
