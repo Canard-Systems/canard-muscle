@@ -1,0 +1,8 @@
+.btn {
+  @apply relative inline-flex items-center overflow-hidden cursor-pointer;
+  transition: all 0.2s ease-out;
+
+  &--bordered {
+    @apply border border-black
+  }
+}
