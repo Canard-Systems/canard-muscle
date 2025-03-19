@@ -1,99 +1,137 @@
 <template>
-  <div class="bg-white p-6 rounded-lg shadow-lg w-full">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
-      <h2 class="text-lg md:text-xl font-bold">Liste des exercices</h2>
+  <v-card class="bg-opacity-10 backdrop-blur-sm rounded-lg">
+    <v-card-title class="text-2xl font-semibold">Liste des Exercices</v-card-title>
 
-      <label class="flex items-center space-x-2 mt-2 md:mt-0">
-        <input type="checkbox" v-model="filterByUser" class="form-checkbox h-5 w-5 text-indigo-600">
-        <span class="text-sm text-gray-700">Mes exercices</span>
-      </label>
-    </div>
+    <v-progress-linear v-if="loading" indeterminate></v-progress-linear>
 
-    <div class="mb-4">
-      <input type="text" v-model="searchQuery" placeholder="Rechercher un exercice..."
-             class="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"/>
-    </div>
-
-    <p v-if="isFetching" class="text-center text-gray-500 animate-pulse">Chargement des exercices...</p>
-
-    <ul v-else-if="filteredExercises.length > 0" class="space-y-3">
-      <li v-for="exercise in filteredExercises" :key="exercise.id" class="p-3 border rounded-md shadow-sm bg-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center">
-        <div class="mb-2 md:mb-0">
-          <p class="text-lg font-semibold">{{ capitalizeFirstLetter(exercise.name) }}</p>
-          <p class="text-sm text-gray-600">{{ capitalizeFirstLetter(exercise.description) || "Aucune description" }}</p>
-          <p class="text-xs text-gray-500 mt-1">Muscles : {{ capitalizeFirstLetter(exercise.muscles) || "Non précisé" }}</p>
+    <v-list v-else dense>
+      <v-list-item
+          v-for="exercise in exercises"
+          :key="exercise.id"
+          class="flex justify-between items-center"
+      >
+        <div class="flex items-center justify-between">
+        <div>
+          <v-list-item-title>
+            {{ exercise.name }}
+            <span v-if="exercise.status === 1" class="text-green-400 text-sm">(Public)</span>
+            <span v-else class="text-yellow-400 text-sm">(Privé)</span>
+          </v-list-item-title>
+          <v-list-item-subtitle>
+            {{ exercise.muscles || 'Muscles non spécifiés' }}
+          </v-list-item-subtitle>
         </div>
 
-        <slot name="actions" :exercise="exercise"></slot>
-      </li>
-    </ul>
-    <p v-else class="text-gray-500 text-center mt-4">Aucun exercice trouvé.</p>
-  </div>
+        <!-- Affichage des options uniquement pour l'utilisateur qui a créé l'exercice -->
+        <v-menu v-if="exercise.createdBy.id === user?.id">
+          <template v-slot:activator="{ props }">
+            <v-btn icon="mdi-dots-vertical" v-bind="props"></v-btn>
+          </template>
+          <v-list>
+            <v-list-item @click="editExercise(exercise.id)">
+              <v-list-item-title>Modifier</v-list-item-title>
+            </v-list-item>
+            <v-list-item @click="confirmDelete(exercise.id)">
+              <v-list-item-title class="text-red-400">Supprimer</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+        </div>
+      </v-list-item>
+    </v-list>
+
+    <v-card-actions>
+      <v-btn color="primary" @click="createExercise">Ajouter un exercice</v-btn>
+    </v-card-actions>
+
+    <v-dialog v-model="modalVisible" max-width="400px">
+      <v-card>
+        <v-card-title>Supprimer l'exercice</v-card-title>
+        <v-card-text>Êtes-vous sûr de vouloir supprimer cet exercice ?</v-card-text>
+        <v-card-actions>
+          <v-btn text @click="modalVisible = false">Annuler</v-btn>
+          <v-btn color="red" text @click="deleteExercise">Supprimer</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </v-card>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { useNuxtApp } from "#app";
 
-const props = defineProps({
-  apiUrl: {
-    type: String,
-    required: true
-  },
-  userId: {
-    type: String,
-    required: true
-  }
-});
-
-const isFetching = ref(true);
-const filterByUser = ref(false);
-const searchQuery = ref("");
+const { $toast, $user } = useNuxtApp();
 const exercises = ref([]);
+const loading = ref(true);
+const modalVisible = ref(false);
+const exerciseToDelete = ref(null);
+const user = $user.value; // Récupération de l'utilisateur connecté
 
 const fetchExercises = async () => {
   try {
-    isFetching.value = true;
-    const response = await $fetch(props.apiUrl, {
-      headers: { Authorization: `Bearer ${useCookie("token").value}` },
+    const token = useCookie("token").value;
+    const response = await $fetch("http://localhost:8000/api/exercises/filtered", {
+      headers: { Authorization: `Bearer ${token}` }
     });
-
-    exercises.value = response.map(ex => ({
-      ...ex,
-      name: capitalizeFirstLetter(ex.name),
-      description: ex.description ? capitalizeFirstLetter(ex.description) : '',
-      muscles: ex.muscles ? capitalizeFirstLetter(ex.muscles) : ''
-    }));
+    exercises.value = response;
   } catch (error) {
-    console.error("Erreur lors de la récupération des exercices :", error);
+    console.error(error);
+    $toast.error("Erreur lors du chargement des exercices");
   } finally {
-    isFetching.value = false;
+    loading.value = false;
   }
 };
 
-const filteredExercises = computed(() => {
-  let filtered = exercises.value;
-  if (filterByUser.value) {
-    filtered = filtered.filter(ex => ex.createdBy === `/api/users/${props.userId}`);
+const createExercise = async () => {
+  try {
+    const token = useCookie("token").value;
+    const newExercise = await $fetch("http://localhost:8000/api/exercises", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: { name: "Nouvel Exercice" }
+    });
+    $toast.success("Exercice créé !");
+    await fetchExercises();
+  } catch (error) {
+    console.error(error);
+    $toast.error("Erreur lors de la création de l'exercice.");
   }
-  if (searchQuery.value) {
-    const search = searchQuery.value.toLowerCase();
-    filtered = filtered.filter(ex =>
-        ex.name.toLowerCase().includes(search) ||
-        (ex.muscles && ex.muscles.toLowerCase().includes(search))
-    );
-  }
-  return filtered;
-});
-
-const capitalizeFirstLetter = (str) => {
-  if (!str) return '';
-  return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
-onMounted(async () => {
-  await fetchExercises();
-});
+const editExercise = (id) => {
+  if (!id) {
+    $toast.error("Exercice introuvable.");
+    return;
+  }
+  navigateTo(`/exercise/edit/${id}`);
+};
 
-defineExpose({ fetchExercises });
+const confirmDelete = (id) => {
+  if (!id) {
+    $toast.error("Exercice introuvable.");
+    return;
+  }
+  exerciseToDelete.value = id;
+  modalVisible.value = true;
+};
+
+const deleteExercise = async () => {
+  try {
+    const token = useCookie("token").value;
+    await $fetch(`http://localhost:8000/api/exercises/${exerciseToDelete.value}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    $toast.success("Exercice supprimé !");
+    exercises.value = exercises.value.filter(exercise => exercise.id !== exerciseToDelete.value);
+  } catch (error) {
+    console.error(error);
+    $toast.error("Erreur lors de la suppression de l'exercice.");
+  } finally {
+    modalVisible.value = false;
+  }
+};
+
+onMounted(fetchExercises);
 </script>

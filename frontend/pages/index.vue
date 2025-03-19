@@ -46,17 +46,7 @@
 
       <!-- Section Liste des exercices -->
       <v-col cols="12" md="6">
-        <v-card class="bg-opacity-10 backdrop-blur-sm rounded-lg">
-          <v-card-title class="text-2xl font-semibold">Liste des exercices</v-card-title>
-          <v-card-text>
-            <v-list dense>
-              <v-list-item v-for="exercise in exercises" :key="exercise.id">
-                  <v-list-item-title class="font-medium">{{ exercise.name }}</v-list-item-title>
-                  <v-list-item-subtitle>{{ exercise.description }}</v-list-item-subtitle>
-              </v-list-item>
-            </v-list>
-          </v-card-text>
-        </v-card>
+        <ExerciseList />
       </v-col>
     </v-row>
   </v-container>
