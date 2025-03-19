@@ -7,13 +7,27 @@
         <div
             v-for="plan in plans"
             :key="plan.id"
-            class="bg-white bg-opacity-10 backdrop-blur-sm border border-gray-600 rounded-lg p-4 cursor-pointer transition duration-200 hover:shadow-lg"
-            @click="goToPlan(plan.id)"
+            class="relative bg-white bg-opacity-10 backdrop-blur-sm border border-gray-600 rounded-lg p-4 transition duration-200 hover:shadow-lg"
         >
-          <h3 class="text-xl font-semibold">{{ plan.name || 'Nouveau plan' }}</h3>
+          <div class="absolute top-2 right-2">
+            <button @click="confirmDelete(plan)" class="text-red-500 hover:text-red-700">
+              ✖
+            </button>
+          </div>
+          <h3
+              class="text-xl font-semibold cursor-pointer"
+              @click="goToPlan(plan.id)"
+          >
+            {{ plan.name || 'Nouveau plan' }}
+          </h3>
           <p v-if="plan.goal" class="mt-2">{{ plan.goal }}</p>
-          <p class="text-sm text-gray-300 mt-2">Créé le : {{ formatDate(plan.createdAt) }}</p>
-          <p class="text-sm text-gray-300">Mis à jour le : {{ formatDate(plan.updatedAt) ?? formatDate(plan.createdAt) }}</p>
+          <p class="text-sm text-gray-300 mt-2">
+            Créé le : {{ formatDate(plan.createdAt) }}
+          </p>
+          <p class="text-sm text-gray-300">
+            Mis à jour le : {{ formatDate(plan.updatedAt) ?? formatDate(plan.createdAt) }}
+          </p>
+
           <div v-if="plan.sessions?.length" class="mt-4 bg-gray-800 bg-opacity-50 p-2 rounded">
             <h4 class="text-lg font-medium">Sessions :</h4>
             <ul class="list-disc pl-5">
@@ -27,25 +41,52 @@
       </div>
       <p v-else class="text-center">Vous n'avez pas encore de plans</p>
     </div>
+
     <div class="mt-4">
       <LoadingButton @click="$emit('create-plan')">
         Créer un plan
       </LoadingButton>
     </div>
+
+    <!-- Modale de confirmation pour la suppression -->
+    <ConfirmModal
+        v-if="modalVisible"
+        :title="'Supprimer le plan'"
+        :message="'Êtes-vous sûr de vouloir supprimer ce plan ? Cette action est irréversible.'"
+        @confirm="deletePlan"
+        @cancel="modalVisible = false"
+    />
   </div>
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue';
+import { ref } from 'vue';
+import ConfirmModal from '@/components/ConfirmModal.vue';
 
 const props = defineProps({
   plans: Array,
   loading: Boolean
 });
-const emit = defineEmits(['create-plan', 'navigate']);
+
+const emit = defineEmits(['create-plan', 'navigate', 'delete-plan']);
+
+const modalVisible = ref(false);
+const planToDelete = ref(null);
 
 const goToPlan = (planId) => {
   emit('navigate', planId);
+};
+
+const confirmDelete = (plan) => {
+  planToDelete.value = plan;
+  modalVisible.value = true;
+};
+
+const deletePlan = () => {
+  if (planToDelete.value) {
+    emit('delete-plan', planToDelete.value.id);
+    modalVisible.value = false;
+  }
 };
 
 const formatDate = (dateString) => {

@@ -18,6 +18,7 @@
             :loading="loading"
             @create-plan="createPlan"
             @navigate="goToPlan"
+            @delete-plan="handleDeletePlan"
         />
       </section>
 
@@ -89,6 +90,22 @@ const fetchPlans = async () => {
     $toast.error("Erreur lors du chargement des plans");
   } finally {
     loading.value = false;
+  }
+};
+
+const handleDeletePlan = async (planId) => {
+  try {
+    await $fetch(`http://localhost:8000/api/plans/${planId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    myPlans.value = myPlans.value.filter(plan => plan.id !== planId);
+    $toast.success('Plan supprimé avec succès !');
+  } catch (error) {
+    console.error(error);
+    $toast.error("Erreur lors de la suppression du plan.");
   }
 };
 
