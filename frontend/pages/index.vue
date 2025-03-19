@@ -1,65 +1,75 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-blue-900 to-blue-700 text-white p-8">
+  <v-container fluid class="min-h-screen bg-gradient-to-br from-blue-900 to-blue-700 text-white py-8">
     <!-- Header -->
-    <header class="mb-8 flex items-center justify-between">
-      <h1 class="text-4xl font-bold">Tableau de bord</h1>
-      <button class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded shadow">
-        Profil
-      </button>
-    </header>
+    <v-row align="center" justify="space-between" class="mb-8">
+      <v-col>
+        <h1 class="text-4xl font-bold">Tableau de bord</h1>
+      </v-col>
+      <v-col class="text-right">
+        <v-btn color="primary" @click="goToProfile">Profil</v-btn>
+      </v-col>
+    </v-row>
 
     <!-- Grid principal -->
-    <main class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <v-row dense>
       <!-- Section Plans d'entraînement -->
-      <section class="bg-white bg-opacity-10 backdrop-blur-sm p-6 rounded-lg shadow-lg">
-        <h2 class="text-2xl font-semibold mb-4">Mes plans d'entraînement</h2>
-        <PlanList
-            :plans="myPlans"
-            :loading="loading"
-            @create-plan="createPlan"
-            @navigate="goToPlan"
-            @delete-plan="handleDeletePlan"
-        />
-      </section>
+      <v-col cols="12" md="6">
+        <v-card class="bg-opacity-10 backdrop-blur-sm rounded-lg">
+          <v-card-title class="text-2xl font-semibold">Mes plans d'entraînement</v-card-title>
+          <v-card-text>
+            <PlanList
+                :plans="myPlans"
+                :loading="loading"
+                @create-plan="createPlan"
+                @edit-plan="editPlan"
+                @navigate="goToPlan"
+                @delete-plan="handleDeletePlan"
+            />
+          </v-card-text>
+        </v-card>
+      </v-col>
 
       <!-- Section Graphiques -->
-      <section class="bg-white bg-opacity-10 backdrop-blur-sm p-6 rounded-lg shadow-lg">
-        <h2 class="text-2xl font-semibold mb-4">Graphiques</h2>
-        <div class="h-48 flex items-center justify-center border border-dashed border-gray-400 rounded">
-          <p>Graphiques en cours de développement...</p>
-        </div>
-      </section>
+      <v-col cols="12" md="6">
+        <v-card class="bg-opacity-10 backdrop-blur-sm rounded-lg">
+          <v-card-title class="text-2xl font-semibold">Graphiques</v-card-title>
+          <v-card-text class="h-48 flex items-center justify-center border border-dashed border-gray-400 rounded">
+            <p>Graphiques en cours de développement...</p>
+          </v-card-text>
+        </v-card>
+      </v-col>
 
       <!-- Section Liste des exercices -->
-      <section class="bg-white bg-opacity-10 backdrop-blur-sm p-6 rounded-lg shadow-lg">
-        <h2 class="text-2xl font-semibold mb-4">Liste des exercices</h2>
-        <ul>
-          <li
-              v-for="exercise in exercises"
-              :key="exercise.id"
-              class="mb-2 border-b border-gray-500 pb-1"
-          >
-            <span class="font-medium">{{ exercise.name }}</span> - {{ exercise.description }}
-          </li>
-        </ul>
-      </section>
+      <v-col cols="12" md="6">
+        <v-card class="bg-opacity-10 backdrop-blur-sm rounded-lg">
+          <v-card-title class="text-2xl font-semibold">Liste des exercices</v-card-title>
+          <v-card-text>
+            <v-list dense>
+              <v-list-item v-for="exercise in exercises" :key="exercise.id">
+                  <v-list-item-title class="font-medium">{{ exercise.name }}</v-list-item-title>
+                  <v-list-item-subtitle>{{ exercise.description }}</v-list-item-subtitle>
+              </v-list-item>
+            </v-list>
+          </v-card-text>
+        </v-card>
+      </v-col>
 
       <!-- Section Dernières séances -->
-      <section class="bg-white bg-opacity-10 backdrop-blur-sm p-6 rounded-lg shadow-lg">
-        <h2 class="text-2xl font-semibold mb-4">Dernières séances</h2>
-        <ul>
-          <li
-              v-for="session in recentSessions"
-              :key="session.id"
-              class="mb-2 flex justify-between border-b border-gray-500 pb-1"
-          >
-            <span>{{ session.date }}</span>
-            <span>{{ session.summary }}</span>
-          </li>
-        </ul>
-      </section>
-    </main>
-  </div>
+      <v-col cols="12" md="6">
+        <v-card class="bg-opacity-10 backdrop-blur-sm rounded-lg">
+          <v-card-title class="text-2xl font-semibold">Dernières séances</v-card-title>
+          <v-card-text>
+            <v-list dense>
+              <v-list-item v-for="session in recentSessions" :key="session.id">
+                  <v-list-item-title>{{ session.date }}</v-list-item-title>
+                  <v-list-item-subtitle>{{ session.summary }}</v-list-item-subtitle>
+              </v-list-item>
+            </v-list>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script setup lang="ts">
@@ -68,9 +78,21 @@ import { useRouter } from '#vue-router';
 import { useNuxtApp } from '#app';
 import PlanList from '@/components/PlanList.vue';
 
+definePageMeta({
+  middleware: 'auth'
+});
+useHead(
+  {
+    title: 'Tableau de bord',
+    meta: [
+      { name: 'description', content: 'Tableau de bord de l\'application de fitness' }
+    ]
+  }
+)
 const { $toast } = useNuxtApp();
 const router = useRouter();
 const token = useCookie('token').value;
+
 // Données statiques en dur pour l'instant
 const myPlans = ref([]);
 const loading = ref(false);
@@ -93,7 +115,7 @@ const fetchPlans = async () => {
   }
 };
 
-const handleDeletePlan = async (planId) => {
+const handleDeletePlan = async (planId: number) => {
   try {
     await $fetch(`http://localhost:8000/api/plans/${planId}`, {
       method: 'DELETE',
@@ -121,16 +143,40 @@ const recentSessions = ref([
   { id: 3, date: '05 Juin 2023', summary: 'Session cardio' }
 ]);
 
-const createPlan = () => {
-  $toast.success("Création d'un nouveau plan (donnée en dur)");
-  // Pour l'instant, redirige vers une page d'édition fictive
-  router.push(`/plan/edit/99`);
+const createPlan = async () => {
+  try {
+    loading.value = true;
+
+    const newPlan = await $fetch('http://localhost:8000/api/plans', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: {}
+    });
+
+    $toast.success("Plan créé avec succès !");
+
+    await router.push(`/plan/edit/${newPlan.id}`);
+  } catch (error) {
+    console.error(error);
+    $toast.error("Erreur lors de la création du plan.");
+  } finally {
+    loading.value = false;
+  }
 };
 
+
 const goToPlan = (planId: number) => {
+  router.push(`/plan/${planId}`);
+};
+const editPlan = (planId: number) => {
   router.push(`/plan/edit/${planId}`);
+};
+const goToProfile = () => {
+  router.push('/profile');
 };
 
 onMounted(fetchPlans);
-
 </script>
