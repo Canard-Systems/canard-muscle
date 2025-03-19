@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="loading" class="text-center p-4">Chargement...</div>
+    <v-progress-linear v-if="loading" indeterminate></v-progress-linear>
     <div v-else>
       <div v-if="plans.length" class="space-y-4 mb-4">
         <v-card

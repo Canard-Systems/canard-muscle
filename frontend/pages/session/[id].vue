@@ -78,6 +78,15 @@ import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from '#vue-router';
 import { useNuxtApp } from '#app';
 
+definePageMeta({
+      middleware: 'auth'
+    }
+)
+useHead(
+    {
+      title: 'Détails de la séance',
+    }
+)
 const { $toast } = useNuxtApp();
 const route = useRoute();
 const router = useRouter();

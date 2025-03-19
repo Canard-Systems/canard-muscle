@@ -6,27 +6,30 @@
 
     <v-list v-else dense>
       <v-list-item v-for="session in sessions" :key="session.id">
-          <v-list-item-title>{{ session.name || "Séance sans nom" }}</v-list-item-title>
-          <v-list-item-subtitle>
-            Durée : {{ session.duration || 0 }} min - Distance : {{ session.distance || 0 }} km
-          </v-list-item-subtitle>
-          <v-list-item-subtitle>
-            Plans associés : {{ session.plans?.length ? session.plans?.map(p => p.name).join(', ') : 'Aucun' }}
-          </v-list-item-subtitle>
-
-        <v-menu>
-          <template v-slot:activator="{ props }">
-            <v-btn icon="mdi-dots-vertical" v-bind="props"></v-btn>
-          </template>
-          <v-list>
-            <v-list-item @click="editSession(session.id)">
-              <v-list-item-title>Modifier</v-list-item-title>
-            </v-list-item>
-            <v-list-item @click="confirmDelete(session.id)">
-              <v-list-item-title class="text-red-400">Supprimer</v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
+        <div class="flex items-center justify-between">
+          <div>
+            <v-list-item-title>{{ session.name || "Séance sans nom" }}</v-list-item-title>
+            <v-list-item-subtitle>
+              Durée : {{ session.duration || 0 }} min - Distance : {{ session.distance || 0 }} km
+            </v-list-item-subtitle>
+            <v-list-item-subtitle>
+              Plans associés : {{ session.plans?.length ? session.plans?.map(p => p.name).join(', ') : 'Aucun' }}
+            </v-list-item-subtitle>
+          </div>
+          <v-menu>
+            <template v-slot:activator="{ props }">
+              <v-btn icon="mdi-dots-vertical" v-bind="props"></v-btn>
+            </template>
+            <v-list>
+              <v-list-item @click="editSession(session.id)">
+                <v-list-item-title>Modifier</v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="confirmDelete(session.id)">
+                <v-list-item-title class="text-red-400">Supprimer</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </div>
       </v-list-item>
     </v-list>
 
@@ -48,11 +51,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter } from '#vue-router';
-import { useNuxtApp } from '#app';
+import {ref, onMounted} from 'vue';
+import {useRouter} from '#vue-router';
+import {useNuxtApp} from '#app';
 
-const { $toast } = useNuxtApp();
+const {$toast} = useNuxtApp();
 const router = useRouter();
 const token = useCookie('token').value;
 
@@ -64,14 +67,16 @@ const sessionToDelete = ref(null);
 const fetchSessions = async () => {
   try {
     const response = await $fetch("http://localhost:8000/api/sessions/me", {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: {Authorization: `Bearer ${token}`}
     });
     sessions.value = response.member || [];
     console.log("=>(SessionList.vue:71) sessions.value", sessions.value);
-  } catch (error) {
+  }
+  catch (error) {
     console.error(error);
     $toast.error("Erreur lors du chargement des séances");
-  } finally {
+  }
+  finally {
     loading.value = false;
   }
 };
@@ -80,12 +85,13 @@ const createSession = async () => {
   try {
     const newSession = await $fetch("http://localhost:8000/api/sessions", {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: { name: "Nouvelle Séance" }
+      headers: {Authorization: `Bearer ${token}`, "Content-Type": "application/json"},
+      body: {name: "Nouvelle Séance"}
     });
     $toast.success("Séance créée !");
     await router.push(`/session/edit/${newSession.id}`);
-  } catch (error) {
+  }
+  catch (error) {
     console.error(error);
     $toast.error("Erreur lors de la création de la séance.");
   }
@@ -112,14 +118,16 @@ const deleteSession = async () => {
   try {
     await $fetch(`http://localhost:8000/api/sessions/${sessionToDelete.value}`, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` }
+      headers: {Authorization: `Bearer ${token}`}
     });
     $toast.success("Séance supprimée !");
     sessions.value = sessions.value.filter(session => session.id !== sessionToDelete.value);
-  } catch (error) {
+  }
+  catch (error) {
     console.error(error);
     $toast.error("Erreur lors de la suppression de la séance.");
-  } finally {
+  }
+  finally {
     modalVisible.value = false;
   }
 };

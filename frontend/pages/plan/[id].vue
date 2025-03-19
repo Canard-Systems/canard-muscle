@@ -66,6 +66,20 @@
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from '#vue-router';
 import { useNuxtApp } from '#app';
+definePageMeta({
+      middleware: 'auth'
+    }
+)
+useHead(
+  {
+    title: 'Détails du plan',
+    meta: [
+      { name: 'description', content: 'Détails du plan d\'entraînement' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' }
+    ]
+  }
+)
+
 
 const { $toast } = useNuxtApp();
 const route = useRoute();

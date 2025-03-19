@@ -29,6 +29,11 @@
         </v-card>
       </v-col>
 
+      <!-- Section Dernières séances -->
+      <v-col cols="12" md="6">
+        <SessionList />
+      </v-col>
+
       <!-- Section Graphiques -->
       <v-col cols="12" md="6">
         <v-card class="bg-opacity-10 backdrop-blur-sm rounded-lg">
@@ -52,11 +57,6 @@
             </v-list>
           </v-card-text>
         </v-card>
-      </v-col>
-
-      <!-- Section Dernières séances -->
-      <v-col cols="12" md="6">
-          <SessionList />
       </v-col>
     </v-row>
   </v-container>
@@ -88,6 +88,7 @@ const myPlans = ref([]);
 const loading = ref(false);
 
 const fetchPlans = async () => {
+  loading.value = true;
   try {
     const response = await $fetch('http://localhost:8000/api/plans/me', {
       method: 'GET',
