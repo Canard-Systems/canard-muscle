@@ -56,17 +56,7 @@
 
       <!-- Section Dernières séances -->
       <v-col cols="12" md="6">
-        <v-card class="bg-opacity-10 backdrop-blur-sm rounded-lg">
-          <v-card-title class="text-2xl font-semibold">Dernières séances</v-card-title>
-          <v-card-text>
-            <v-list dense>
-              <v-list-item v-for="session in recentSessions" :key="session.id">
-                  <v-list-item-title>{{ session.date }}</v-list-item-title>
-                  <v-list-item-subtitle>{{ session.summary }}</v-list-item-subtitle>
-              </v-list-item>
-            </v-list>
-          </v-card-text>
-        </v-card>
+          <SessionList />
       </v-col>
     </v-row>
   </v-container>
