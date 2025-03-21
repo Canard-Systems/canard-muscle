@@ -1,58 +1,65 @@
 <template>
   <v-card class="bg-opacity-10 backdrop-blur-sm rounded-lg neon-console p-4 relative">
-    <v-card-title class="text-2xl font-semibold neon-title">
-      Mes Séances
-    </v-card-title>
+    <div class="flex items-center justify-between mb-2">
+      <v-card-title class="text-2xl font-semibold neon-title">
+        Mes Séances
+      </v-card-title>
+      <div>
+        <v-btn color="primary" @click="createSession" class="futuristic-btn">
+          Ajouter une séance
+        </v-btn>
+      </div>
+    </div>
 
     <v-progress-linear v-if="loading" indeterminate class="neon-progress"></v-progress-linear>
 
-    <v-list v-else dense>
-      <v-list-item
-          v-for="session in sessions"
-          :key="session.id"
-          class="flex items-center justify-between neon-item px-2 py-2"
-      >
-        <div class="flex items-center justify-between">
-        <div>
-          <v-list-item-title>
+    <div v-else>
+      <div v-if="sessions.length" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- On fait une grille responsive sur sm / lg -->
+        <div
+            v-for="session in sessions"
+            :key="session.id"
+            class="neon-item p-4 bg-gray-800 rounded relative"
+        >
+          <div class="absolute top-2 right-2">
+            <v-menu>
+              <template v-slot:activator="{ props }">
+                <v-btn icon="mdi-dots-vertical" v-bind="props"></v-btn>
+              </template>
+              <v-list>
+                <v-list-item @click="goToSessionDetails(session.id)">
+                  <v-list-item-title>Voir détails</v-list-item-title>
+                </v-list-item>
+                <v-list-item @click="editSession(session.id)">
+                  <v-list-item-title>Modifier</v-list-item-title>
+                </v-list-item>
+                <v-list-item @click="confirmDelete(session.id)">
+                  <v-list-item-title class="text-red-400">
+                    Supprimer
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </div>
+
+          <h3 class="font-bold text-lg mb-1">
             {{ session.name || "Séance sans nom" }}
-          </v-list-item-title>
-          <v-list-item-subtitle>
+          </h3>
+          <p class="text-sm mb-1">
             Durée : {{ session.duration || 0 }} min –
             Distance : {{ session.distance || 0 }} km
-          </v-list-item-subtitle>
-          <v-list-item-subtitle>
+          </p>
+          <p class="text-sm">
             Plans associés :
             {{ session.plans?.length ? session.plans.map(p => p.name).join(', ') : 'Aucun' }}
-          </v-list-item-subtitle>
+          </p>
         </div>
-        <v-menu>
-          <template v-slot:activator="{ props }">
-            <v-btn icon="mdi-dots-vertical" v-bind="props"></v-btn>
-          </template>
-          <v-list>
-            <v-list-item @click="goToSessionDetails(session.id)">
-              <v-list-item-title>Voir détails</v-list-item-title>
-            </v-list-item>
-            <v-list-item @click="editSession(session.id)">
-              <v-list-item-title>Modifier</v-list-item-title>
-            </v-list-item>
-            <v-list-item @click="confirmDelete(session.id)">
-              <v-list-item-title class="text-red-400">
-                Supprimer
-              </v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
-        </div>
-      </v-list-item>
-    </v-list>
+      </div>
 
-    <v-card-actions>
-      <v-btn color="primary" @click="createSession" class="futuristic-btn">
-        Ajouter une séance
-      </v-btn>
-    </v-card-actions>
+      <p v-else class="text-center mt-4 text-gray-300">
+        Aucune séance trouvée
+      </p>
+    </div>
 
     <v-dialog v-model="modalVisible" max-width="400px">
       <v-card class="bg-gray-800 neon-alert">
@@ -73,8 +80,8 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRouter } from '#vue-router';
 import { useNuxtApp } from '#app';
+import { useRouter } from '#vue-router';
 
 const { $toast } = useNuxtApp();
 const router = useRouter();
@@ -110,7 +117,7 @@ const createSession = async () => {
       body: { name: "Nouvelle Séance" }
     });
     $toast.success("Séance créée !");
-    await router.push(`/session/edit/${newSession.id}`);
+    router.push(`/session/edit/${newSession.id}`);
   } catch (error) {
     console.error(error);
     $toast.error("Erreur lors de la création de la séance.");
@@ -149,9 +156,7 @@ const deleteSession = async () => {
       headers: { Authorization: `Bearer ${token}` }
     });
     $toast.success("Séance supprimée !");
-    sessions.value = sessions.value.filter(
-        session => session.id !== sessionToDelete.value
-    );
+    sessions.value = sessions.value.filter(s => s.id !== sessionToDelete.value);
   } catch (error) {
     console.error(error);
     $toast.error("Erreur lors de la suppression de la séance.");
@@ -173,11 +178,12 @@ onMounted(fetchSessions);
   box-shadow: 0 0 20px rgba(0,255,255,0.07);
 }
 .neon-title {
-  text-shadow: 0 0 4px rgba(0,255,255,0.3), 0 0 8px rgba(0,255,255,0.2);
+  text-shadow: 0 0 4px rgba(0,255,255,0.3),
+  0 0 8px rgba(0,255,255,0.2);
 }
 .neon-alert {
-  box-shadow: 0 0 10px rgba(255, 0, 0, 0.2),
-  inset 0 0 10px rgba(255, 0, 0, 0.1);
+  box-shadow: 0 0 10px rgba(255,0,0,0.2),
+  inset 0 0 10px rgba(255,0,0,0.1);
 }
 .neon-item {
   transition: background-color 0.2s;

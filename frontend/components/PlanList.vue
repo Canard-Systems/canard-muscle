@@ -8,7 +8,8 @@
 
     <!-- Liste des plans -->
     <div v-else>
-      <div v-if="plans.length" class="space-y-4 mb-4">
+      <div v-if="plans.length" class="grid gap-4 mb-4 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- On utilise une grille Tailwind : 2 colonnes sur sm, 3 colonnes sur lg -->
         <v-card
             v-for="plan in plans"
             :key="plan.id"
@@ -66,7 +67,7 @@
                     {{ plan.duration || 0 }} semaines
                   </p>
                 </div>
-                <div>
+                <div class="mt-2 sm:mt-0">
                   <h4 class="text-lg font-medium glow-subtitle">
                     Fréquence :
                   </h4>
@@ -79,7 +80,12 @@
           </v-expand-transition>
 
           <v-card-actions>
-            <v-btn text color="blue-lighten-1" @click="toggleDetails(plan.id)" class="futuristic-btn">
+            <v-btn
+                text
+                color="blue-lighten-1"
+                @click="toggleDetails(plan.id)"
+                class="futuristic-btn"
+            >
               {{ expandedPlan === plan.id ? 'Réduire' : 'Voir plus' }}
             </v-btn>
           </v-card-actions>
@@ -110,7 +116,9 @@
         <v-card-actions>
           <v-spacer />
           <v-btn text @click="modalVisible = false">Annuler</v-btn>
-          <v-btn color="red" text @click="deletePlan">Supprimer</v-btn>
+          <v-btn color="red" text @click="deletePlan">
+            Supprimer
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

@@ -3,7 +3,7 @@
     <!-- On inclut le header latéral -->
     <Header />
 
-    <main class="flex-1 px-24 py-16">
+    <main class="flex-1 md:px-24 md:py-16">
       <slot />
     </main>
   </div>
