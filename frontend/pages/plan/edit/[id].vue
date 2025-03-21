@@ -80,7 +80,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from '#vue-router';
-import { useHead } from '#app';
 
 useHead({ title: "Modification d'un plan d'entraînement" });
 definePageMeta({ middleware: "auth" });

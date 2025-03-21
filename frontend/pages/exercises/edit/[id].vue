@@ -52,6 +52,12 @@ const loading = ref(true);
 const error = ref(null);
 const modalVisible = ref(false);
 
+useHead({ title: "Modification d'un plan d'entraînement" });
+definePageMeta(
+  {
+    middleware: "auth"
+  }
+)
 const fetchExercise = async () => {
   try {
     exercise.value = await $fetch(`http://localhost:8000/api/exercises/${route.params.id}`, {
