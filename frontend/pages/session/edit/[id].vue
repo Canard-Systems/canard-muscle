@@ -1,95 +1,113 @@
 <template>
-  <v-container class="mx-auto py-8 px-4 md:px-6 lg:px-8 bg-gray-900 text-white rounded-lg shadow-lg">
+  <v-container class="mx-auto py-8 px-4 md:px-6 lg:px-8 neon-bg text-white rounded-lg shadow-2xl">
+    <!-- Loader -->
+    <v-progress-linear v-if="loading" indeterminate color="primary" class="mb-4 neon-progress" />
 
-    <v-progress-linear v-if="loading" indeterminate color="primary" class="mb-4" />
-
-    <div v-else-if="error" class="text-red-400 bg-red-900 p-4 mb-4 rounded">
+    <!-- Erreur -->
+    <div v-else-if="error" class="text-red-400 bg-red-900 p-4 mb-4 rounded neon-alert">
       {{ error }}
     </div>
 
+    <!-- Formulaire -->
     <div v-else>
-      <h1 class="text-3xl font-bold mb-6">Modifier la séance</h1>
+      <h1 class="text-3xl font-bold mb-6 neon-title">Modifier la séance</h1>
 
       <v-form @submit.prevent="updateSession" class="space-y-6">
-        <div class="flex flex-col">
-          <label class="font-semibold mb-1" for="session-name">Nom de la séance</label>
+        <!-- Nom de la séance -->
+        <div>
+          <label class="font-semibold mb-1 block" for="session-name">
+            Nom de la séance
+          </label>
           <v-text-field
               id="session-name"
               v-model="session.name"
-              class="bg-white text-black rounded"
+              class="neon-input text-black"
               placeholder="Ex : Séance jambes"
               required
           />
         </div>
 
+        <!-- Switch pour mode cardio -->
         <v-switch
             label="Mode cardio ?"
             v-model="session.isCardio"
-            class="mt-4"
+            class="mt-4 neon-switch"
         />
 
+        <!-- Si cardio, champs durée/distance -->
         <div v-if="session.isCardio">
-          <div class="flex flex-col">
-            <label class="font-semibold mb-1" for="session-duration">Durée (minutes)</label>
+          <div>
+            <label class="font-semibold mb-1 block" for="session-duration">
+              Durée (minutes)
+            </label>
             <v-text-field
                 id="session-duration"
                 type="number"
                 v-model.number="session.duration"
-                class="bg-white text-black rounded"
+                class="neon-input text-black"
                 placeholder="Ex : 60"
             />
           </div>
-          <div class="flex flex-col">
-            <label class="font-semibold mb-1" for="session-distance">Distance (km)</label>
+          <div class="mt-4">
+            <label class="font-semibold mb-1 block" for="session-distance">
+              Distance (km)
+            </label>
             <v-text-field
                 id="session-distance"
                 type="number"
                 v-model.number="session.distance"
-                class="bg-white text-black rounded"
+                class="neon-input text-black"
                 placeholder="Ex : 5"
             />
           </div>
         </div>
 
+        <!-- Séance indépendante ou liée à des plans -->
         <v-switch
             label="Séance indépendante"
             v-model="isIndependent"
-            class="mt-4"
+            class="mt-4 neon-switch"
             @change="toggleSessionType"
         />
 
         <div v-if="!isIndependent">
-          <label class="font-semibold mb-1">Associer des plans</label>
+          <label class="font-semibold mb-1 block">
+            Associer des plans
+          </label>
           <v-autocomplete
               v-model="selectedPlans"
               :items="availablePlans"
               item-title="name"
               item-value="id"
               multiple
-              class="bg-white text-black rounded"
+              class="neon-input text-black"
               placeholder="Sélectionnez un plan"
           />
         </div>
 
+        <!-- Ajouter des exercices -->
         <div>
-          <label class="font-semibold mb-1">Ajouter des exercices</label>
+          <label class="font-semibold mb-1 block">Ajouter des exercices</label>
           <v-autocomplete
               v-model="selectedExercises"
               :items="availableExercises"
               item-title="name"
               item-value="id"
               multiple
-              class="bg-white text-black rounded"
+              class="neon-input text-black"
               placeholder="Choisissez un ou plusieurs exercices"
           />
         </div>
 
-        <div v-if="session.sessionExercises.length" class="bg-gray-800 p-4 rounded space-y-2">
-          <h3 class="text-xl font-medium mb-2">Exercices associés</h3>
+        <!-- Liste des exercices déjà associés -->
+        <div v-if="session.sessionExercises.length" class="bg-gray-800 p-4 rounded space-y-2 mt-4 neon-panel">
+          <h3 class="text-xl font-medium mb-2 glow-subtitle">
+            Exercices associés
+          </h3>
           <div
               v-for="(sessionExercise, index) in session.sessionExercises"
               :key="sessionExercise.id || index"
-              class="p-2 bg-gray-700 rounded space-y-2 mb-2"
+              class="p-2 bg-gray-700 rounded space-y-2 mb-2 transition hover:shadow-inner"
           >
             <div class="flex items-center justify-between">
               <div>
@@ -110,25 +128,26 @@
               />
             </div>
 
+            <!-- Edition des détails sets/reps/poids -->
             <div class="flex space-x-2 items-end">
               <v-text-field
                   type="number"
                   v-model.number="sessionExercise.sets"
                   label="Séries"
-                  class="bg-white text-black rounded"
+                  class="neon-input text-black"
                   style="max-width: 80px;"
               />
               <v-text-field
                   v-model="sessionExercise.repsPerSetString"
                   label="Reps ex: 10/10/8"
-                  class="bg-white text-black rounded"
+                  class="neon-input text-black"
                   style="max-width: 140px;"
               />
               <v-text-field
                   type="number"
                   v-model.number="sessionExercise.weight"
                   label="Poids (kg)"
-                  class="bg-white text-black rounded"
+                  class="neon-input text-black"
                   style="max-width: 100px;"
               />
               <v-btn color="primary" @click="saveSessionExercise(sessionExercise)">
@@ -138,20 +157,24 @@
           </div>
         </div>
 
+        <!-- Boutons Enregistrer / Supprimer -->
         <div class="flex justify-between mt-4">
-          <v-btn type="submit" color="primary" :loading="updating" class="shadow">
+          <v-btn type="submit" color="primary" :loading="updating" class="shadow futuristic-btn">
             Enregistrer
           </v-btn>
-          <v-btn color="red" class="shadow" @click="confirmDelete">
+          <v-btn color="red" class="shadow futuristic-btn" @click="confirmDelete">
             Supprimer
           </v-btn>
         </div>
       </v-form>
     </div>
 
+    <!-- Dialog suppression -->
     <v-dialog v-model="modalVisible" max-width="400px">
-      <v-card class="bg-gray-800">
-        <v-card-title class="text-white">Supprimer la séance</v-card-title>
+      <v-card class="bg-gray-800 neon-alert">
+        <v-card-title class="text-white font-bold">
+          Supprimer la séance
+        </v-card-title>
         <v-card-text class="text-gray-300">
           Êtes-vous sûr de vouloir supprimer cette séance ?
         </v-card-text>
@@ -177,6 +200,7 @@ const route = useRoute();
 const router = useRouter();
 const token = useCookie("token").value;
 
+// État principal
 const session = ref({
   name: "",
   isCardio: false,
@@ -185,23 +209,24 @@ const session = ref({
   plans: [],
   sessionExercises: []
 });
-
 const availablePlans = ref([]);
 const selectedPlans = ref([]);
 const availableExercises = ref([]);
 const selectedExercises = ref([]);
-
 const isIndependent = ref(false);
+
 const loading = ref(true);
 const updating = ref(false);
 const error = ref(null);
 const modalVisible = ref(false);
 
+// Helper d’affichage
 const displayReps = (reps) => {
   if (!reps || !reps.length) return "Non défini";
   return reps.join("/");
 };
 
+// Récupère la séance
 const fetchSession = async () => {
   try {
     const resp = await $fetch(`http://localhost:8000/api/sessions/${route.params.id}`, {
@@ -219,6 +244,7 @@ const fetchSession = async () => {
     };
 
     if (resp.plans?.length) {
+      // On extrait l’ID depuis l’IRI
       selectedPlans.value = resp.plans.map((iri) => iri.split("/").pop());
       isIndependent.value = false;
     } else {
@@ -233,6 +259,7 @@ const fetchSession = async () => {
   }
 };
 
+// Charger un sessionExercise si c’est un IRI
 const hydrateSessionExercise = async (iriOrObj) => {
   if (typeof iriOrObj === "object") {
     return prepareSessionExercise(iriOrObj);
@@ -243,6 +270,7 @@ const hydrateSessionExercise = async (iriOrObj) => {
   return prepareSessionExercise(se);
 };
 
+// Ajoute un champ repsPerSetString, etc.
 const prepareSessionExercise = async (se) => {
   if (se.exercise && typeof se.exercise === "string") {
     const exId = se.exercise.split("/").pop();
@@ -256,6 +284,7 @@ const prepareSessionExercise = async (se) => {
   return se;
 };
 
+// Fetch Plans
 const fetchPlans = async () => {
   try {
     const resp = await $fetch("http://localhost:8000/api/plans/me", {
@@ -268,6 +297,7 @@ const fetchPlans = async () => {
   }
 };
 
+// Fetch Exercices
 const fetchExercises = async () => {
   try {
     const resp = await $fetch("http://localhost:8000/api/exercises/filtered", {
@@ -280,12 +310,14 @@ const fetchExercises = async () => {
   }
 };
 
+// Watch : quand on ajoute un exercice via selectedExercises
 watch(
     () => selectedExercises.value,
     async (newVal, oldVal) => {
       const addedIds = newVal.filter(id => !oldVal.includes(id));
       if (!addedIds.length) return;
 
+      // Pour chaque ID ajouté, on créé un sessionExercise
       const newSEList = await Promise.all(
           addedIds.map(async (exerciseId) => {
             try {
@@ -323,6 +355,7 @@ watch(
     }
 );
 
+// Sauvegarder les changements sets/reps/poids
 const saveSessionExercise = async (sessionExercise) => {
   try {
     const repsArr = sessionExercise.repsPerSetString
@@ -350,6 +383,7 @@ const saveSessionExercise = async (sessionExercise) => {
   }
 };
 
+// Retirer un exercice
 const removeExercise = async (sessionExerciseId) => {
   try {
     await $fetch(`http://localhost:8000/api/session_exercises/${sessionExerciseId}`, {
@@ -364,12 +398,14 @@ const removeExercise = async (sessionExerciseId) => {
   }
 };
 
+// Switch entre séance indépendante / liée à des plans
 const toggleSessionType = () => {
   if (isIndependent.value) {
     selectedPlans.value = [];
   }
 };
 
+// Mise à jour de la séance (PATCH)
 const updateSession = async () => {
   try {
     updating.value = true;
@@ -393,7 +429,6 @@ const updateSession = async () => {
             .filter(Boolean)
       }
     });
-
     $toast.success("Séance mise à jour !");
   } catch (err) {
     console.error(err);
@@ -403,10 +438,10 @@ const updateSession = async () => {
   }
 };
 
+// Suppression de la séance
 const confirmDelete = () => {
   modalVisible.value = true;
 };
-
 const deleteSession = async () => {
   try {
     await $fetch(`http://localhost:8000/api/sessions/${route.params.id}`, {
@@ -432,10 +467,53 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.bg-gray-900 {
-  background-color: #1a1a1a;
+.neon-bg {
+  background: radial-gradient(circle, #141414 0%, #0a0a0a 100%);
+  border: 1px solid rgba(255,255,255,0.05);
+  box-shadow: 0 0 20px rgba(0,255,255,0.04), inset 0 0 10px rgba(0,255,255,0.02);
+  transition: box-shadow 0.3s;
 }
-.v-text-field {
-  max-width: 300px;
+.neon-bg:hover {
+  box-shadow: 0 0 30px rgba(0,255,255,0.06), inset 0 0 20px rgba(0,255,255,0.04);
+}
+.neon-title {
+  text-shadow: 0 0 4px rgba(0,255,255,0.3), 0 0 8px rgba(0,255,255,0.2);
+}
+.neon-alert {
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.2), inset 0 0 10px rgba(255, 0, 0, 0.1);
+}
+.neon-progress {
+  --v-progress-linear-height: 4px;
+}
+
+/* Switch style minimal */
+.neon-switch .v-selection-control__input {
+  filter: hue-rotate(180deg);
+}
+
+/* Champs texte sur fond sombre */
+.neon-input {
+  background-color: #2a2a2a !important;
+  color: #fff !important;
+}
+
+/* Panel */
+.neon-panel {
+  box-shadow: inset 0 0 8px rgba(255,255,255,0.05);
+}
+
+/* Sous-titre en glow */
+.glow-subtitle {
+  text-shadow: 0 0 3px rgba(0,255,255,0.4);
+}
+
+/* Boutons futuristes */
+.futuristic-btn {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: transform 0.2s ease;
+}
+.futuristic-btn:hover {
+  transform: scale(1.05);
 }
 </style>
