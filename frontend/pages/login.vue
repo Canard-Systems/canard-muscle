@@ -67,7 +67,7 @@ const isLoading = ref(false);
 const login = async () => {
   try {
     isLoading.value = true;
-    const { token } = await $fetch('http://localhost:8000/api/login_check', {
+    const { token } = await $fetch('https://canardmuscleapi.antoninpamart.fr/api/login_check', {
       method: 'POST',
       body: {
         email: email.value,
@@ -98,7 +98,7 @@ const login = async () => {
 };
 
 const getUserInfo = async () => {
-  return $fetch('http://localhost:8000/api/me', {
+  return $fetch('https://canardmuscleapi.antoninpamart.fr/api/me', {
     headers: {
       Authorization: `Bearer ${tokenCookie.value}`
     }

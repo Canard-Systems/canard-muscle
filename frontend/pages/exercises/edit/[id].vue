@@ -78,7 +78,7 @@ definePageMeta({ middleware: "auth" });
 
 const fetchExercise = async () => {
   try {
-    exercise.value = await $fetch(`http://localhost:8000/api/exercises/${route.params.id}`, {
+    exercise.value = await $fetch(`https://canardmuscleapi.antoninpamart.fr/api/exercises/${route.params.id}`, {
       method: "GET",
       headers: { "Authorization": `Bearer ${token}` }
     });
@@ -97,7 +97,7 @@ const fetchExercise = async () => {
 
 const updateExercise = async () => {
   try {
-    await $fetch(`http://localhost:8000/api/exercises/${route.params.id}`, {
+    await $fetch(`https://canardmuscleapi.antoninpamart.fr/api/exercises/${route.params.id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/merge-patch+json",
@@ -123,7 +123,7 @@ const confirmDelete = () => {
 
 const deleteExercise = async () => {
   try {
-    await $fetch(`http://localhost:8000/api/exercises/${route.params.id}`, {
+    await $fetch(`https://canardmuscleapi.antoninpamart.fr/api/exercises/${route.params.id}`, {
       method: "DELETE",
       headers: { "Authorization": `Bearer ${token}` }
     });

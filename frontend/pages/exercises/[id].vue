@@ -66,7 +66,7 @@ const user = $user.value;
 
 const fetchExercise = async () => {
   try {
-    exercise.value = await $fetch(`http://localhost:8000/api/exercises/${route.params.id}`, {
+    exercise.value = await $fetch(`https://canardmuscleapi.antoninpamart.fr/api/exercises/${route.params.id}`, {
       method: "GET",
       headers: { "Authorization": `Bearer ${token}` }
     });

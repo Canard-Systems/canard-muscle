@@ -47,7 +47,7 @@ const signup = async () => {
   isLoading.value = true;
 
   try {
-    const response = await $fetch('http://localhost:8000/api/register', {
+    const response = await $fetch('https://canardmuscleapi.antoninpamart.fr/api/register', {
       method: 'POST',
       body: {
         email: email.value,
@@ -83,7 +83,7 @@ const signup = async () => {
 
 const getUserInfo = async () => {
   try {
-    return await $fetch('http://localhost:8000/api/me', {
+    return await $fetch('https://canardmuscleapi.antoninpamart.fr/api/me', {
       headers: {
         Authorization: `Bearer ${tokenCookie.value}`
       }

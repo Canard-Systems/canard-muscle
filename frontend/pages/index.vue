@@ -236,7 +236,7 @@ const newScheduledSession = ref({
 // ========== FETCH DES DONNÉES ========== //
 const fetchMyPlans = async () => {
   try {
-    const res = await $fetch('http://localhost:8000/api/plans/me', {
+    const res = await $fetch('https://canardmuscleapi.antoninpamart.fr/api/plans/me', {
       headers: { Authorization: `Bearer ${token}` }
     });
     myPlans.value = res.member || [];
@@ -249,7 +249,7 @@ const fetchMyPlans = async () => {
 // On ne récupère que les séances de l'utilisateur => /sessions/me
 const fetchAllSessions = async () => {
   try {
-    const res = await $fetch('http://localhost:8000/api/sessions/me', {
+    const res = await $fetch('https://canardmuscleapi.antoninpamart.fr/api/sessions/me', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -264,7 +264,7 @@ const fetchAllSessions = async () => {
 // Récupérer les séances programmées => /scheduled_sessions/me
 const fetchScheduledSessions = async () => {
   try {
-    const res = await $fetch('http://localhost:8000/api/scheduled_sessions/me', {
+    const res = await $fetch('https://canardmuscleapi.antoninpamart.fr/api/scheduled_sessions/me', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -372,7 +372,7 @@ const createScheduledSession = async () => {
           : null
     };
 
-    await $fetch('http://localhost:8000/api/scheduled_sessions', {
+    await $fetch('https://canardmuscleapi.antoninpamart.fr/api/scheduled_sessions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

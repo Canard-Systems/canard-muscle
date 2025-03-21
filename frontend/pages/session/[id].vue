@@ -119,7 +119,7 @@ const associatedPlans = ref([]);
 
 const fetchSession = async () => {
   try {
-    const response = await $fetch(`http://localhost:8000/api/sessions/${route.params.id}`, {
+    const response = await $fetch(`https://canardmuscleapi.antoninpamart.fr/api/sessions/${route.params.id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -163,7 +163,7 @@ const confirmDelete = () => {
 
 const deleteSession = async () => {
   try {
-    await $fetch(`http://localhost:8000/api/sessions/${route.params.id}`, {
+    await $fetch(`https://canardmuscleapi.antoninpamart.fr/api/sessions/${route.params.id}`, {
       method: "DELETE",
       headers: { "Authorization": `Bearer ${token}` }
     });

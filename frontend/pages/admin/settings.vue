@@ -12,7 +12,7 @@ const settings = ref([]);
 // Charger les paramètres existants
 const fetchSettings = async () => {
   try {
-    const response = await $fetch('http://localhost:8000/api/settings', {
+    const response = await $fetch('https://canardmuscleapi.antoninpamart.fr/api/settings', {
       headers: {
         Authorization: `Bearer ${useCookie('token').value}`,
       },
@@ -28,7 +28,7 @@ const fetchSettings = async () => {
 const updateSetting = async (setting) => {
   if (!setting) return; // Vérifie si le paramètre est défini
   try {
-    await $fetch(`http://localhost:8000/api/settings/${setting.id}`, {
+    await $fetch(`https://canardmuscleapi.antoninpamart.fr/api/settings/${setting.id}`, {
       method: 'PATCH',
       body: { value: setting.value },
       headers: {

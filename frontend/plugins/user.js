@@ -4,7 +4,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
     if (token && !user.value) {
         try {
-            user.value = await $fetch('http://localhost:8000/api/me', {
+            user.value = await $fetch('https://canardmuscleapi.antoninpamart.fr/api/me', {
                 headers: {Authorization: `Bearer ${token}`},
             });
         } catch (err) {

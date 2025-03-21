@@ -145,7 +145,7 @@ const expandedPlan = ref<number | null>(null);
 const fetchPlans = async () => {
   loading.value = true;
   try {
-    const response = await $fetch('http://localhost:8000/api/plans/me', {
+    const response = await $fetch('https://canardmuscleapi.antoninpamart.fr/api/plans/me', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -162,7 +162,7 @@ const fetchPlans = async () => {
 const createPlan = async () => {
   try {
     loading.value = true;
-    const newPlan = await $fetch('http://localhost:8000/api/plans', {
+    const newPlan = await $fetch('https://canardmuscleapi.antoninpamart.fr/api/plans', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -196,7 +196,7 @@ const confirmDelete = (plan) => {
 const deletePlan = async () => {
   if (!planToDelete.value) return;
   try {
-    await $fetch(`http://localhost:8000/api/plans/${planToDelete.value.id}`, {
+    await $fetch(`https://canardmuscleapi.antoninpamart.fr/api/plans/${planToDelete.value.id}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }
     });

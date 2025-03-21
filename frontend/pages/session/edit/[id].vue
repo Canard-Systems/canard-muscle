@@ -229,7 +229,7 @@ const displayReps = (reps) => {
 // Récupère la séance
 const fetchSession = async () => {
   try {
-    const resp = await $fetch(`http://localhost:8000/api/sessions/${route.params.id}`, {
+    const resp = await $fetch(`https://canardmuscleapi.antoninpamart.fr/api/sessions/${route.params.id}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
 
@@ -274,7 +274,7 @@ const hydrateSessionExercise = async (iriOrObj) => {
 const prepareSessionExercise = async (se) => {
   if (se.exercise && typeof se.exercise === "string") {
     const exId = se.exercise.split("/").pop();
-    const ex = await $fetch(`http://localhost:8000/api/exercises/${exId}`, {
+    const ex = await $fetch(`https://canardmuscleapi.antoninpamart.fr/api/exercises/${exId}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     se.exercise = ex;
@@ -287,7 +287,7 @@ const prepareSessionExercise = async (se) => {
 // Fetch Plans
 const fetchPlans = async () => {
   try {
-    const resp = await $fetch("http://localhost:8000/api/plans/me", {
+    const resp = await $fetch("https://canardmuscleapi.antoninpamart.fr/api/plans/me", {
       headers: { Authorization: `Bearer ${token}` }
     });
     availablePlans.value = resp.member || [];
@@ -300,7 +300,7 @@ const fetchPlans = async () => {
 // Fetch Exercices
 const fetchExercises = async () => {
   try {
-    const resp = await $fetch("http://localhost:8000/api/exercises/filtered", {
+    const resp = await $fetch("https://canardmuscleapi.antoninpamart.fr/api/exercises/filtered", {
       headers: { Authorization: `Bearer ${token}` }
     });
     availableExercises.value = resp;
@@ -321,7 +321,7 @@ watch(
       const newSEList = await Promise.all(
           addedIds.map(async (exerciseId) => {
             try {
-              const createdSE = await $fetch("http://localhost:8000/api/session_exercises", {
+              const createdSE = await $fetch("https://canardmuscleapi.antoninpamart.fr/api/session_exercises", {
                 method: "POST",
                 headers: {
                   Authorization: `Bearer ${token}`,
@@ -338,7 +338,7 @@ watch(
               }
               if (createdSE.exercise && typeof createdSE.exercise === "string") {
                 const exId = createdSE.exercise.split("/").pop();
-                createdSE.exercise = await $fetch(`http://localhost:8000/api/exercises/${exId}`, {
+                createdSE.exercise = await $fetch(`https://canardmuscleapi.antoninpamart.fr/api/exercises/${exId}`, {
                   headers: { Authorization: `Bearer ${token}` }
                 });
               }
@@ -386,7 +386,7 @@ const saveSessionExercise = async (sessionExercise) => {
 // Retirer un exercice
 const removeExercise = async (sessionExerciseId) => {
   try {
-    await $fetch(`http://localhost:8000/api/session_exercises/${sessionExerciseId}`, {
+    await $fetch(`https://canardmuscleapi.antoninpamart.fr/api/session_exercises/${sessionExerciseId}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` }
     });
@@ -410,7 +410,7 @@ const updateSession = async () => {
   try {
     updating.value = true;
 
-    await $fetch(`http://localhost:8000/api/sessions/${route.params.id}`, {
+    await $fetch(`https://canardmuscleapi.antoninpamart.fr/api/sessions/${route.params.id}`, {
       method: "PATCH",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -444,7 +444,7 @@ const confirmDelete = () => {
 };
 const deleteSession = async () => {
   try {
-    await $fetch(`http://localhost:8000/api/sessions/${route.params.id}`, {
+    await $fetch(`https://canardmuscleapi.antoninpamart.fr/api/sessions/${route.params.id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` }
     });

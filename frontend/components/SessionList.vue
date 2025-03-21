@@ -94,7 +94,7 @@ const sessionToDelete = ref(null);
 
 const fetchSessions = async () => {
   try {
-    const response = await $fetch("http://localhost:8000/api/sessions/me", {
+    const response = await $fetch("https://canardmuscleapi.antoninpamart.fr/api/sessions/me", {
       headers: { Authorization: `Bearer ${token}` }
     });
     sessions.value = response.member || [];
@@ -108,7 +108,7 @@ const fetchSessions = async () => {
 
 const createSession = async () => {
   try {
-    const newSession = await $fetch("http://localhost:8000/api/sessions", {
+    const newSession = await $fetch("https://canardmuscleapi.antoninpamart.fr/api/sessions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -151,7 +151,7 @@ const confirmDelete = (id) => {
 
 const deleteSession = async () => {
   try {
-    await $fetch(`http://localhost:8000/api/sessions/${sessionToDelete.value}`, {
+    await $fetch(`https://canardmuscleapi.antoninpamart.fr/api/sessions/${sessionToDelete.value}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` }
     });

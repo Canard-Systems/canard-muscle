@@ -20,7 +20,7 @@ export async function useApi(url, options = {}) {
     } catch (err) {
         // Si le serveur répond 401, tenter de rafraîchir l'access token
         if (err.response && err.response.status === 401) {
-            const refreshResponse = await $fetch('http://localhost:8000/api/token/refresh', {
+            const refreshResponse = await $fetch('https://canardmuscleapi.antoninpamart.fr/api/token/refresh', {
                 method: 'POST',
                 credentials: 'include',
                 headers: {

@@ -127,7 +127,7 @@ const error = ref("");
 // Charger le plan
 const fetchPlan = async () => {
   try {
-    const res = await $fetch(`http://localhost:8000/api/plans/${planId}`, {
+    const res = await $fetch(`https://canardmuscleapi.antoninpamart.fr/api/plans/${planId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -151,7 +151,7 @@ const fetchPlan = async () => {
 // Mettre à jour le plan
 const updatePlan = async () => {
   try {
-    await $fetch(`http://localhost:8000/api/plans/${planId}`, {
+    await $fetch(`https://canardmuscleapi.antoninpamart.fr/api/plans/${planId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/merge-patch+json",

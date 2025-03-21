@@ -6,7 +6,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     }
 
     try {
-        const user = await $fetch('http://localhost:8000/api/me', {
+        const user = await $fetch('https://canardmuscleapi.antoninpamart.fr/api/me', {
             headers: { Authorization: `Bearer ${token}` },
         });
 

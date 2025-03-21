@@ -100,7 +100,7 @@ const user = $user.value;
 const fetchExercises = async () => {
   try {
     const token = useCookie("token").value;
-    const response = await $fetch("http://localhost:8000/api/exercises/filtered", {
+    const response = await $fetch("https://canardmuscleapi.antoninpamart.fr/api/exercises/filtered", {
       headers: { Authorization: `Bearer ${token}` }
     });
     exercises.value = response;
@@ -115,7 +115,7 @@ const fetchExercises = async () => {
 const createExercise = async () => {
   try {
     const token = useCookie("token").value;
-    const newExercise = await $fetch("http://localhost:8000/api/exercises", {
+    const newExercise = await $fetch("https://canardmuscleapi.antoninpamart.fr/api/exercises", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -151,7 +151,7 @@ const confirmDelete = (id) => {
 const deleteExercise = async () => {
   try {
     const token = useCookie("token").value;
-    await $fetch(`http://localhost:8000/api/exercises/${exerciseToDelete.value}`, {
+    await $fetch(`https://canardmuscleapi.antoninpamart.fr/api/exercises/${exerciseToDelete.value}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` }
     });
